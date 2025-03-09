@@ -1,5 +1,5 @@
+from __future__ import annotations
 import torch
-import torchvision
 from torchvision.transforms import ToTensor 
 import numpy as np
 from torchvision import datasets

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import zipfile
 import os
 from tqdm import tqdm

@@ -48,7 +48,7 @@ class DecoderBlock(nn.Module):
 
 # Full U-Net Model
 class UNETMobileNetV2(nn.Module):
-    def __init__(self, final_channels: int = 1) -> None:
+    def __init__(self, final_channels: int = 3) -> None:
         super(UNETMobileNetV2, self).__init__()
         
         # Encoder

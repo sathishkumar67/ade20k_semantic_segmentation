@@ -28,6 +28,8 @@ class CustomCityscapes:
             'val': datasets.Cityscapes(root, split='val', mode=mode, target_type=target_type),
         }
         self.current_dataset = self.datasets[split]
+        self.classes = self.current_dataset.classes
+        self.no_of_classes = len(self.classes)
 
     def __len__(self) -> int:
         """

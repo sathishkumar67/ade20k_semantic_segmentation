@@ -7,14 +7,14 @@ from typing import Callable, Tuple
 
 
 class CustomCityscapes:
-    def __init__(self, root:str, split:str, mode:str='fine', target_type:str='color', transforms:Callable=ToTensor(), img_size:Tuple[int, int]=(224, 224)) -> None:
+    def __init__(self, root:str, split:str, mode:str='fine', target_type:str='semantic', transforms:Callable=ToTensor(), img_size:Tuple[int, int]=(224, 224)) -> None:
         """
         Initialize the custom Cityscapes dataset container.
 
         Args:
             root (str): Root directory of the Cityscapes dataset.
             mode (str): Annotation mode ('fine' or 'coarse'). Default is 'fine'.
-            target_type (str): Type of target to load ('color', 'instanceIds', etc.). Default is 'color'.
+            target_type (str): Type of target to load ('semantic', 'instance', 'color', etc.). Default is 'semantic'.
         """
         self.root = root
         self.mode = mode
@@ -49,5 +49,5 @@ class CustomCityscapes:
             tuple: A tuple containing the image and its corresponding target with the applied transformations.
         """
         image, target = self.current_dataset.__getitem__(idx)
-        image, target = self.transforms(np.array(image.convert('RGB').resize(self.img_size))), self.transforms(np.array(target.convert('RGB').resize(self.img_size)))
+        image, target = self.transforms(np.array(image.resize(self.img_size))), torch.tensor(np.array(target.resize(self.img_size)), dtype=torch.long)
         return image, target

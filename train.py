@@ -8,6 +8,7 @@ from tqdm import tqdm
 def train_model(model, train_loader, val_loader, num_epochs, device, save_path='model.pth'):
     criterion = nn.CrossEntropyLoss()  # 255 is void class in Cityscapes
     optimizer = optim.AdamW(model.parameters(), lr=3e-4)
+    criterion = nn.CrossEntropyLoss()
 
     best_val_loss = float('inf')
 
@@ -25,10 +26,10 @@ def train_model(model, train_loader, val_loader, num_epochs, device, save_path='
             loss.backward()
             optimizer.step()
 
-            train_loss += loss.item() * images.size(0)
+            train_loss += loss.item() 
             pbar.set_postfix({'Train Loss': loss.item()})
 
-        train_loss /= len(train_loader.dataset)
+        train_loss /= len(train_loader)
 
         # Validation Phase
         model.eval()
@@ -38,11 +39,11 @@ def train_model(model, train_loader, val_loader, num_epochs, device, save_path='
                 images, labels = images.to(device), labels.to(device)
                 outputs = model(images)
                 loss = criterion(outputs, labels)
-                val_loss += loss.item() * images.size(0)
+                val_loss += loss.item() 
 
                 pbar.set_postfix({'Val Loss': loss.item()})
 
-        val_loss /= len(val_loader.dataset)
+        val_loss /= len(val_loader)
 
         print(f"Epoch {epoch+1}/{num_epochs}")
         print(f"Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")

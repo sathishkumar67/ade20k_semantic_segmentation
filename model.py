@@ -71,7 +71,7 @@ class UNETMobileNetV2(nn.Module):
         self.final_upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
         self.final_conv = nn.Conv2d(64, num_classes, kernel_size=1)
     
-    def forward(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Encoder
         skips, x = self.encoder(x)
         # skips: [0: 112x112,16], [1: 56x56,24], [2: 28x28,32], [3: 14x14,96]
@@ -85,9 +85,5 @@ class UNETMobileNetV2(nn.Module):
         x = self.dec3(x, skips[2])  # 14x14 -> 28x28
         x = self.dec2(x, skips[1])  # 28x28 -> 56x56
         x = self.dec1(x, skips[0])  # 56x56 -> 112x112
-        
-        if y:
-          x = self.final_conv(self.final_upsample(x))
-          return x, F.cross_entropy(x, y)
-        else:
-            return self.final_conv(self.final_upsample(x))
+
+        return self.final_conv(self.final_upsample(x))

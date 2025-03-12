@@ -6,9 +6,8 @@ from tqdm import tqdm
 
 # Training Loop
 def train_model(model, train_loader, val_loader, num_epochs, device, save_path='model.pth'):
-    criterion = nn.CrossEntropyLoss()  # 255 is void class in Cityscapes
-    optimizer = optim.AdamW(model.parameters(), lr=3e-4)
-    criterion = nn.CrossEntropyLoss()
+    criterion = model.criterion
+    optimizer = model.optimizer
 
     best_val_loss = float('inf')
 

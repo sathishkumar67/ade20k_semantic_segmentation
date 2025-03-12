@@ -49,7 +49,7 @@ class DecoderBlock(nn.Module):
 
 # Full U-Net Model
 class UNETMobileNetV2(nn.Module):
-    def __init__(self, num_classes: int) -> None:
+    def __init__(self, num_classes: int=36) -> None:
         super(UNETMobileNetV2, self).__init__()
         
         # Encoder
@@ -87,3 +87,9 @@ class UNETMobileNetV2(nn.Module):
         x = self.dec1(x, skips[0])  # 56x56 -> 112x112
 
         return self.final_conv(self.final_upsample(x))
+    
+    def criterion(self) -> nn.Module:
+        return nn.CrossEntropyLoss()
+    
+    def optimizer(self, *args, **kwargs) -> torch.optim.Optimizer:
+        return torch.optim.AdamW(self.parameters(), *args, **kwargs)

@@ -4,8 +4,8 @@ from tqdm import tqdm
 
 # Training Loop
 def train_model(model, train_loader, val_loader, num_epochs, device, save_path='model.pth'):
-    criterion = model.criterion
-    optimizer = model.optimizer
+    criterion = model.criterion()
+    optimizer = model.optimizer()
 
     best_val_loss = float('inf')
 

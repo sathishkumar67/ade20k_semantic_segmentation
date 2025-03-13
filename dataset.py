@@ -24,7 +24,7 @@ class CustomCityscapes:
         self.transforms = transforms
         self.datasets = {
             'train': datasets.Cityscapes(root, split='train', mode=mode, target_type=target_type),
-            'test': datasets.Cityscapes(root, split='test', mode=mode, target_type=target_type),
+            # 'test': datasets.Cityscapes(root, split='test', mode=mode, target_type=target_type),
             'val': datasets.Cityscapes(root, split='val', mode=mode, target_type=target_type),
         }
         self.current_dataset = self.datasets[split]

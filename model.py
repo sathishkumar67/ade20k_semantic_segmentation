@@ -88,7 +88,7 @@ class UNETMobileNetV2(nn.Module):
 
         return self.final_conv(self.final_upsample(x))
     
-    def criterion(self) -> nn.Module:
+    def criterion(self) -> nn.CrossEntropyLoss:
         return nn.CrossEntropyLoss()
     
     def optimizer(self, *args, **kwargs) -> torch.optim.Optimizer:

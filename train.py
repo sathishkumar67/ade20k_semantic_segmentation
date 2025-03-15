@@ -6,8 +6,8 @@ from model import UNETMobileNetV2
 from torch.utils.data import DataLoader
 
 # Training Loop
-def train_model(model, train_loader, val_loader, num_epochs, device, save_path='model.pth', lr=3e-4, weight_decay=3e-4):
-    optimizer = model.optimizer(lr, weight_decay)
+def train_model(model, train_loader, val_loader, num_epochs, device, save_path='model.pth'):
+    optimizer = model.optimizer()
 
     best_val_loss = float('inf')
 

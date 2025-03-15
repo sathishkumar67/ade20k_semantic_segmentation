@@ -242,7 +242,7 @@ class UNETMobileNetV2(nn.Module):
         # Average Dice over all classes and convert to loss
         return 1 - (dice / self.num_classes)
     
-    def optimizer(self, *args, **kwargs) -> torch.optim.Optimizer:
+    def optimizer(self) -> torch.optim.Optimizer:
         """
         Provide an optimizer for training the model.
 
@@ -254,4 +254,4 @@ class UNETMobileNetV2(nn.Module):
             torch.optim.Optimizer: An instance of the AdamW optimizer configured with model parameters.
         """
         # Return AdamW optimizer with model parameters
-        return torch.optim.AdamW(self.parameters(), *args, **kwargs)
+        return torch.optim.AdamW(self.parameters(), lr=3e-4, weight_decay= 1e-4)

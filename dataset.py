@@ -35,6 +35,8 @@ class ADE20KDATASET(Dataset):
         self.current_dataset = self.datasets[split]
         # Calculate the number of samples in the current dataset
         self.no_of_samples = len(self.current_dataset["scene_category"])
+        # no of classes
+        self.no_of_classes = 150 + 1 # 150 classes + 1 for background
 
     def __len__(self):
         """Return the total number of samples in the dataset."""

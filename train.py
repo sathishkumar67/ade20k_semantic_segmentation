@@ -1,6 +1,9 @@
 from __future__ import annotations
 import torch
 from tqdm import tqdm
+from dataset import ADE20KDATASET
+from model import UNETMobileNetV2
+from torch.utils.data import DataLoader
 
 # Training Loop
 def train_model(model, train_loader, val_loader, num_epochs, device, save_path='model.pth'):

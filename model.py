@@ -2,7 +2,6 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 import torchvision.models as models
-import torch.nn.functional as F
 
 
 class DSConv(nn.Module):
@@ -49,9 +48,9 @@ class DecoderBlock(nn.Module):
 
 # Full U-Net Model
 class UNETMobileNetV2(nn.Module):
-    def __init__(self, num_classes: int=36) -> None:
+    def __init__(self, num_classes: int) -> None:
         super(UNETMobileNetV2, self).__init__()
-        
+        self.num_classes = num_classes
         # Encoder
         self.encoder = MobileNetV2Encoder()
         
@@ -70,6 +69,9 @@ class UNETMobileNetV2(nn.Module):
         # Final Upsampling and Output Layer
         self.final_upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
         self.final_conv = nn.Conv2d(64, num_classes, kernel_size=1)
+        
+        # Loss Functions
+        self.ce_loss = nn.CrossEntropyLoss()
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Encoder
@@ -88,8 +90,54 @@ class UNETMobileNetV2(nn.Module):
 
         return self.final_conv(self.final_upsample(x))
     
-    def criterion(self) -> nn.CrossEntropyLoss:
-        return nn.CrossEntropyLoss()
+    def combined_loss(self, pred: torch.Tensor, target: torch.Tensor, alpha: float = 1.0, beta: float = 1.0) -> torch.Tensor:
+        """
+        Compute the combined CrossEntropyLoss and Dice Loss.
+
+        Args:
+            pred (torch.Tensor): Predicted logits of shape (batch_size, num_classes, H, W).
+            target (torch.Tensor): Ground truth labels of shape (batch_size, H, W).
+            alpha (float): Weight for CrossEntropyLoss (default: 1.0).
+            beta (float): Weight for Dice Loss (default: 1.0).
+
+        Returns:
+            torch.Tensor: Combined loss value.
+        """
+        ce_loss = self.ce_loss(pred, target)
+        dice = self.dice_loss(pred, target)
+        return alpha * ce_loss + beta * dice
+    
+    @staticmethod
+    def dice_loss(self, pred: torch.Tensor, target: torch.Tensor, smooth: float = 1e-6) -> torch.Tensor:
+        """
+        Compute the Dice Loss for multi-class segmentation.
+
+        Args:
+            pred (torch.Tensor): Predicted logits of shape (batch_size, num_classes, H, W).
+            target (torch.Tensor): Ground truth labels of shape (batch_size, H, W).
+            num_classes (int): Number of classes in the segmentation task.
+            smooth (float): Smoothing factor to prevent division by zero (default: 1e-6).
+
+        Returns:
+            torch.Tensor: Scalar Dice Loss value.
+        """
+        # Convert logits to probabilities
+        pred = torch.softmax(pred, dim=1)
+        
+        # Convert target to one-hot encoding and match the prediction shape
+        target_one_hot = torch.nn.functional.one_hot(target, self.num_classes).permute(0, 3, 1, 2).float()
+        
+        # Compute Dice Loss for each class and average
+        dice = 0
+        for c in range(self.num_classes):
+            pred_c = pred[:, c, :, :]  # Predictions for class c
+            target_c = target_one_hot[:, c, :, :]  # Ground truth for class c
+            intersection = (pred_c * target_c).sum()  # Overlap
+            union = pred_c.sum() + target_c.sum()  # Total area
+            dice += (2. * intersection + smooth) / (union + smooth)
+        
+        # Average over classes and compute loss
+        return 1 - (dice / self.num_classes)
     
     def optimizer(self, *args, **kwargs) -> torch.optim.Optimizer:
         return torch.optim.AdamW(self.parameters(), *args, **kwargs)

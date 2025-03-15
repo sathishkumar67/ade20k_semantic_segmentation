@@ -1,11 +1,65 @@
 from __future__ import annotations
+from typing import Callable, Tuple
+import numpy as np
 import torch
 from torchvision.transforms import ToTensor 
-import numpy as np
-from torchvision import datasets
-from typing import Callable, Tuple
+from torchvision import datasets, transforms
+from torch.utils.data import Dataset
+from datasets import load_dataset
 
+class ADE20KDATASET(Dataset):
+    """
+    A custom dataset class for the ADE20K dataset, extending PyTorch's Dataset class.
+    This class handles loading, transforming, and providing access to the ADE20K dataset
+    for training, testing, and validation splits.
+    """
+    def __init__(self, split: str = "train", transform: Callable = ToTensor(), img_size: Tuple[int, int] = (224, 224)) -> None:
+        """
+        Initialize the ADE20KDATASET class.
 
+        Args:
+            split (str): The dataset split to use. Must be one of "train", "test", or "val". Default is "train".
+            transform (Callable): A transformation function to apply to the images. Default is ToTensor().
+            img_size (Tuple[int, int]): The target size to resize images and masks to. Default is (224, 224).
+        """
+        self.split = split  # Store the dataset split
+        self.transform = transform  # Store the transformation function
+        self.img_size = img_size  # Store the target image size
+        # Dictionary to hold the dataset splits loaded from the 'scene_parse_150' dataset
+        self.datasets = {
+            "train": load_dataset("scene_parse_150", split="train"),
+            "test": load_dataset("scene_parse_150", split="test"),
+            "val": load_dataset("scene_parse_150", split="validation")
+        }
+        # Select the current dataset based on the split
+        self.current_dataset = self.datasets[split]
+        # Calculate the number of samples in the current dataset
+        self.no_of_samples = len(self.current_dataset["scene_category"])
+
+    def __len__(self):
+        """Return the total number of samples in the dataset."""
+        return self.no_of_samples
+
+    def __getitem__(self, idx):
+        """
+        Retrieve the image and segmentation mask at the given index.
+
+        Args:
+            idx (int): The index of the sample to retrieve.
+
+        Returns:
+            tuple: A tuple containing the transformed image and mask.
+        """
+        # Load the image, convert to RGB, resize, and apply the transformation
+        image = self.transform(transforms.Resize(self.img_size)(self.current_dataset[idx]["image"].convert("RGB")))
+        
+        # Load the mask, convert to grayscale (L mode), resize using nearest neighbor interpolation,
+        # and convert to a long tensor
+        mask = torch.tensor(np.array(transforms.Resize(self.img_size, interpolation=transforms.InterpolationMode.NEAREST)(self.current_dataset[idx]["annotation"].convert("L"))), dtype=torch.long)
+        
+        return image, mask
+    
+    
 class CustomCityscapes:
     def __init__(self, root:str, split:str, mode:str='fine', target_type:str='semantic', transforms:Callable=ToTensor(), img_size:Tuple[int, int]=(224, 224)) -> None:
         """

@@ -7,7 +7,6 @@ from torch.utils.data import DataLoader
 
 # Training Loop
 def train_model(model, train_loader, val_loader, num_epochs, device, save_path='model.pth', lr=3e-4, weight_decay=3e-4):
-    criterion = model.criterion()
     optimizer = model.optimizer(lr, weight_decay)
 
     best_val_loss = float('inf')
@@ -21,8 +20,7 @@ def train_model(model, train_loader, val_loader, num_epochs, device, save_path='
             images, labels = images.to(device), labels.to(device)
 
             optimizer.zero_grad()
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            _, loss = model(images, labels)
             loss.backward()
             optimizer.step()
 
@@ -37,8 +35,7 @@ def train_model(model, train_loader, val_loader, num_epochs, device, save_path='
         with torch.no_grad():
             for images, labels in tqdm(val_loader, desc=f"Epoch {epoch+1}/{num_epochs} - Validation"):
                 images, labels = images.to(device), labels.to(device)
-                outputs = model(images)
-                loss = criterion(outputs, labels)
+                _, loss = model(images, labels)
                 val_loss += loss.item() 
 
                 pbar.set_postfix({'Val Loss': loss.item()})

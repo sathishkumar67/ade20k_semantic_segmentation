@@ -27,9 +27,9 @@ class ADE20KDATASET(Dataset):
         self.img_size = img_size  # Store the target image size
         # Dictionary to hold the dataset splits loaded from the 'scene_parse_150' dataset
         self.datasets = {
-            "train": load_dataset("scene_parse_150", split="train"),
-            "test": load_dataset("scene_parse_150", split="test"),
-            "val": load_dataset("scene_parse_150", split="validation")
+            "train": load_dataset("scene_parse_150", split="train", trust_remote_code=True),
+            "test": load_dataset("scene_parse_150", split="test", trust_remote_code=True), 
+            "val": load_dataset("scene_parse_150", split="validation", trust_remote_code=True),
         }
         # Select the current dataset based on the specified split
         self.current_dataset = self.datasets[split]

@@ -5,6 +5,7 @@ Implementing Models for ADE20K Dataset Segmentation
 
 
 ```
+# to train the model
 from dataset import ADE20KDATASET
 from model import UNETMobileNetV2
 from train import train_model
@@ -37,6 +38,6 @@ if __name__ == "__main__":
         val_loader=val_loader,
         num_epochs=NUM_EPOCHS,
         device=DEVICE,
-        save_path='unet_mobilenetv2_cityscapes.pth'
+        save_path='train.pth'
     )
 ```

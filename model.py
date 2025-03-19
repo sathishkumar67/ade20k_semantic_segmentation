@@ -191,7 +191,7 @@ class UNETMobileNetV2(nn.Module):
             return pred, loss
         return pred, None
     
-    def combined_loss(self, pred: torch.Tensor, target: torch.Tensor, alpha: float = 1.0, beta: float = 1.0) -> torch.Tensor:
+    def combined_loss(self, pred: torch.Tensor, target: torch.Tensor, alpha: float = 0.4, beta: float = 0.6) -> torch.Tensor:
         """
         Compute the combined CrossEntropyLoss and Dice Loss.
 
